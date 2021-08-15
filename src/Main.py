@@ -153,7 +153,7 @@ def get_opendota_player_match_df(match_id):
     if os.path.isfile('Opendota_Requests\\' + match_id + '.csv'):
         opendota_player_match_df = \
             pd.read_csv('Opendota_Requests\\' + match_id + '.csv')
-        # Use json.loads on these series to parse the loaded json strings
+        # Use json.loads on these series to parse as objects instead of strings
         for category in ['gold', 'xp', 'lh', 'dn']:
             opendota_player_match_df[category + "_t"] = \
             [json.loads(x) for x in opendota_player_match_df[category + "_t"]]
@@ -189,6 +189,6 @@ def main():
     # RD2L test game
     process_match_id("6084550449")
     
-    #process_match_id("6126964330")
+    #process_match_id("6131125400")
 
 main()

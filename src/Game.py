@@ -60,23 +60,24 @@ def calculate_tower_damage_advantage(team_df):
 
 def calculate_farm_advantage(team_df):
     # Farm Advantage
-    # 0 points awarded for 35% hero/lane average,
-    # 10% below expected, 35% hero/lane average,
-    # 10% below expected 10th percentile, 20pp below
-    min_gpm_average = -.65
-    min_gpm_ratio_share = -.9
-    min_xpm_average = -.65
-    min_xpm_ratio_share = -.9
+    # 0 points awarded for 50% hero/lane average,
+    # 30% below expected, 60% hero/lane average,
+    # 25% below expected, 10th percentile, 20pp below
+    min_gpm_average = -.5
+    min_gpm_ratio_share = -.7
+    min_xpm_average = -.6
+    min_xpm_ratio_share = -.75
     min_lh_percentiles = [.1, -.2]
-    # Max points awarded for 200% hero/lane average,
-    # 15% above expected, 200% hero/lane average,
+    # Max points awarded for 150% hero/lane average,
+    # 20% above expected, 140% hero/lane average,
     # 15% above expected, 90th percentile, 20pp above
-    max_gpm_average = 2
-    max_gpm_ratio_share = 1.15
-    max_xpm_average = 2
+    max_gpm_average = 1.5
+    max_gpm_ratio_share = 1.2
+    max_xpm_average = 1.4
     max_xpm_ratio_share = 1.15
     max_lh_percentiles = [.9, .2]
     
+    # Gold
     # Calculate actual vs expected gpm points
     gpm_advantage_points = (team_df['benchmarks.gold_per_min.raw'] + min_gpm_average *
                             team_df['hero_lane_gpm']) / \
@@ -100,6 +101,7 @@ def calculate_farm_advantage(team_df):
                                    team_df['expected_gpm_ratio'])
     gpm_ratio_advantage_points = np.clip(gpm_ratio_advantage_points, 0, 1)
     
+    # Experience
     # Calculate actual vs expected xpm points
     xpm_advantage_points = (team_df['benchmarks.xp_per_min.raw'] + min_xpm_average *
                             team_df['hero_lane_xpm']) / \
@@ -168,17 +170,15 @@ def calculate_benchmark_advantages(
     
 def calculate_combat_advantage(team_df):
     # Combat Advantage
-    # Compare KDA directly to lane and hero stats from Ala/Dotabuff
-    # 0 points awarded for 35% hero/lane average,
-    # 10% below expected, 50% below median
-    # TODO: equations work, find fair min/max values
-    min_kda_average = -.65
-    min_kda_ratio_share = -.9
+    # 0 points awarded for 40% hero/lane average,
+    # 40% below expected, 50% below median
+    min_kda_average = -.4
+    min_kda_ratio_share = -.6
     min_ka_advantage = -.5
-    # Max points awarded for 200% hero/lane average,
-    # 15% above expected, 50% above median
-    max_kda_average = 2
-    max_kda_ratio_share = 1.15
+    # Max points awarded for 170% hero/lane average,
+    # 40% above expected, 50% above median
+    max_kda_average = 1.7
+    max_kda_ratio_share = 1.4
     max_ka_advantage = 1.5
     
     # Calculate actual player kda
@@ -197,10 +197,8 @@ def calculate_combat_advantage(team_df):
     team_df['expected_kda_ratio'] = team_df["hero_lane_kda"] / \
         team_expected_total_kda
     
-    # Calculate actual kda ratios (maybe change to average of individual kda vs team kda)
-    team_total_kda = (team_df["kills"].sum() + 
-                      team_df["assists"].sum()) / \
-                      np.maximum(team_df["deaths"].sum(), 1)
+    # Calculate actual kda ratios
+    team_total_kda = team_df['kda'].sum()
     team_df["kda_ratio"] = team_df["kda"] / team_total_kda
 
     # Calculate actual vs expected kda ratio points
