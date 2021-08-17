@@ -98,6 +98,10 @@ def process_player_match_df(opendota_player_match_df):
                                          (laning_df['isRadiant']==True)]
     lanes_dict['dire_top'] = laning_df[(laning_df['lane']==3) &
                                       (laning_df['isRadiant']==False)]
+    lanes_dict['radiant_jungle'] = laning_df[((laning_df['lane']==4) | (laning_df['lane']==5)) &
+                                             (laning_df['isRadiant']==True)]
+    lanes_dict['dire_jungle'] = laning_df[((laning_df['lane']==4) | (laning_df['lane']==5)) &
+                                             (laning_df['isRadiant']==False)]
     
     # Add roles
     lanes_dict = add_roles(lanes_dict)
@@ -196,6 +200,6 @@ def main():
     # RD2L test game
     #process_match_id("6084550449")
     
-    process_match_id("6132703556")
+    process_match_id("6076660886")
 
 main()
