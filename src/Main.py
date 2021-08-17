@@ -23,7 +23,7 @@ hero_id_df = pd.read_csv('Hero_Ids.csv')
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 def add_dotabuff_data(match_data_df):
-    # TODO: have not is_radiant condition and swap 1/3
+    # TODO: move to ala's ETL section and only use hore_role (1-5, 6-jungle, 7-roaming)
     hero_lane_stats_df = pd.read_csv('statsbylane.csv')
     # Hero lane stats
     conditions = [
@@ -76,6 +76,13 @@ def process_player_match_df(opendota_player_match_df):
     # Add columns for 5 and 10 minutes
     for category in ['gold', 'xp', 'lh', 'dn']:
         laning_df = add_lane_timings(laning_df, category)
+    
+    # Add columns for support and core averages
+    for category in ['gold', 'xp', 'lh', 'dn']:
+        laning_df['core_' + category + '_5'] = 0
+        laning_df['core_' + category + '_10'] = 0
+        laning_df['support_' + category + '_5'] = 0
+        laning_df['support_' + category + '_10'] = 0
     
     # Split laning data into team-lane combinations and put in dictionary
     lanes_dict = {}
@@ -187,8 +194,8 @@ def process_match_id(match_id):
 
 def main():
     # RD2L test game
-    process_match_id("6084550449")
+    #process_match_id("6084550449")
     
-    #process_match_id("6131125400")
+    process_match_id("6132703556")
 
 main()
