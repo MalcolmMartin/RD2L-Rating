@@ -103,7 +103,7 @@ def add_roles(lanes_dict):
     # safelane core is 1 and offlane core is 3
     lanes = ['radiant_bot', 'radiant_mid', 'radiant_top',
              'dire_bot', 'dire_mid', 'dire_top']
-    roles = [1, 2, 3, 3, 2, 1]
+    roles = ['1', '2', '3', '3', '2', '1']
     
     for lane, role in zip(lanes, roles):
         lanes_dict[lane].loc[
@@ -118,23 +118,23 @@ def add_roles(lanes_dict):
     for lane in ['radiant_bot', 'dire_top']:
         if len(lanes_dict[lane].index) != 1:
             lanes_dict[lane].loc[
-                lanes_dict[lane]["benchmarks.lhten.raw"].idxmin(), "role"] = 5
+                lanes_dict[lane]["benchmarks.lhten.raw"].idxmin(), "role"] = '5'
         if len(lanes_dict[lane].index) == 3:
             lanes_dict[lane].loc[
-                lanes_dict[lane]["role"]=="", "role"] = 4
+                lanes_dict[lane]["role"]=="", "role"] = '4'
     
     # Off lane supports
     for lane in ['radiant_top', 'dire_bot']:
         if len(lanes_dict[lane].index) == 2:
             lanes_dict[lane].loc[
-                lanes_dict[lane]["benchmarks.lhten.raw"].idxmin(), "role"] = 4
+                lanes_dict[lane]["benchmarks.lhten.raw"].idxmin(), "role"] = '4'
         elif len(lanes_dict[lane].index) == 3:
             lanes_dict[lane].loc[
-                lanes_dict[lane]["benchmarks.lhten.raw"].idxmin(), "role"] = 5
+                lanes_dict[lane]["benchmarks.lhten.raw"].idxmin(), "role"] = '5'
             #lanes_dict[lane].loc[
             #    lanes_dict[lane]["role"]=="", lanes_dict[lane]["role"]] = 4
             lanes_dict[lane].loc[
-                lanes_dict[lane]["role"]=="", "role"] = 4
+                lanes_dict[lane]["role"]=="", "role"] = '4'
     
     # Mid lane supports
     for team in ['radiant', 'dire']:
@@ -144,15 +144,15 @@ def add_roles(lanes_dict):
         if len(lanes_dict[team + '_mid'].index) == 3:
             lanes_dict[team + '_mid'].loc[
                 lanes_dict[team + '_mid']["benchmarks.lhten.raw"].idxmin(), \
-                "role"] = 5
+                "role"] = '5'
             lanes_dict[team + '_mid'].loc[
                 lanes_dict[team + '_mid']["role"]=="",\
-                "role"] = 4
+                "role"] = '4'
         elif len(lanes_dict[team + '_mid'].index) == 2:
             lanes_dict[team + '_mid'].loc[
                 lanes_dict[team + '_mid']["role"]=="",\
                 "role"] = \
-                ({4, 5} - set(used_roles)).pop()
+                ({'4', '5'} - set(used_roles)).pop()
     
     # TODO: Handle Jungle Cores (swap roles with core if higher stats)
     # Jungle Supports (sets any jungler to support)
@@ -165,7 +165,7 @@ def add_roles(lanes_dict):
             lanes_dict[team + '_jungle'].loc[
                 lanes_dict[team + '_jungle']["role"]=="",\
                 "role"] = \
-                ({4, 5} - set(used_roles)).pop()
+                ({'4', '5'} - set(used_roles)).pop()
     
     # TODO: Come up with a better solution for lane advantage for uneven lanes
     # Must have 1-5 assigned
@@ -175,22 +175,22 @@ def add_roles(lanes_dict):
         for lane in ['_bot', '_mid', '_top', '_jungle']:
             for category in minute_categories:
                 lanes_dict[team + '_bot']['support_' + category] += \
-                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == 4) | (lanes_dict[team + lane].role == 5)][category].sum()
+                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == '4') | (lanes_dict[team + lane].role == '5')][category].sum()
                 lanes_dict[team + '_mid']['support_' + category] += \
-                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == 4) | (lanes_dict[team + lane].role == 5)][category].sum()
+                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == '4') | (lanes_dict[team + lane].role == '5')][category].sum()
                 lanes_dict[team + '_top']['support_' + category] += \
-                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == 4) | (lanes_dict[team + lane].role == 5)][category].sum()
+                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == '4') | (lanes_dict[team + lane].role == '5')][category].sum()
                 lanes_dict[team + '_jungle']['support_' + category] += \
-                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == 4) | (lanes_dict[team + lane].role == 5)][category].sum()
+                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == '4') | (lanes_dict[team + lane].role == '5')][category].sum()
                 
                 lanes_dict[team + '_bot']['core_' + category] += \
-                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == 1) | (lanes_dict[team + lane].role == 2) | (lanes_dict[team + lane].role == 3)][category].sum()
+                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == '1') | (lanes_dict[team + lane].role == '2') | (lanes_dict[team + lane].role == '3')][category].sum()
                 lanes_dict[team + '_mid']['core_' + category] += \
-                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == 1) | (lanes_dict[team + lane].role == 2) | (lanes_dict[team + lane].role == 3)][category].sum()
+                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == '1') | (lanes_dict[team + lane].role == '2') | (lanes_dict[team + lane].role == '3')][category].sum()
                 lanes_dict[team + '_top']['core_' + category] += \
-                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == 1) | (lanes_dict[team + lane].role == 2) | (lanes_dict[team + lane].role == 3)][category].sum()
+                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == '1') | (lanes_dict[team + lane].role == '2') | (lanes_dict[team + lane].role == '3')][category].sum()
                 lanes_dict[team + '_jungle']['core_' + category] += \
-                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == 1) | (lanes_dict[team + lane].role == 2) | (lanes_dict[team + lane].role == 3)][category].sum()
+                    (lanes_dict[team + lane])[(lanes_dict[team + lane].role == '1') | (lanes_dict[team + lane].role == '2') | (lanes_dict[team + lane].role == '3')][category].sum()
     
     # Average by dividing by 3 for cores and 2 for supports
     for team in ['radiant', 'dire']:
