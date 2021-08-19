@@ -70,7 +70,7 @@ def process_player_match_df(opendota_player_match_df):
         "personaname", "hero_id", "hero_name", "rank_tier", "isRadiant",
         "lane", "gold_t", "xp_t", "lh_t", "dn_t", "benchmarks.lhten.raw",
         "benchmarks.lhten.pct", "lane_efficiency_pct"]]
-    laning_df['role'] = ""
+    laning_df['role'] = ''
     laning_df['lane_advantage'] = 0
     
     # Add columns for 5 and 10 minutes
@@ -200,6 +200,6 @@ def main():
     # RD2L test game
     #process_match_id("6084550449")
     
-    process_match_id("6076660886")
+    process_match_id("6136755612")
 
 main()

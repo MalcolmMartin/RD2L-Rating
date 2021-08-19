@@ -22,6 +22,26 @@ def benchmark_advantage_points(column, min_point_level, max_point_level):
     advantage_points = np.clip(advantage_points, 0, 1)
     return advantage_points
 
+def calculate_benchmark_advantages(
+        team_df, adv_type, stat_type,
+        bench_type, min_percentiles, max_percentiles):
+    # iterate for absolute percentile and for percentile relative to team mean
+    minor_cats = ['', '_mean']
+    func_list = [benchmark_advantage_points, benchmark_pp_advantage_points]
+    
+    for func, minor_cat, min_per, max_per in zip(
+        func_list, minor_cats, min_percentiles, max_percentiles):
+        
+        bench_available_points = []
+        for role in team_df['role']:
+            bench_available_points.append(point_dict[stat_type + '_percentile' + minor_cat + '_' + role])
+        
+        team_df[adv_type + '_advantage'] += \
+            bench_available_points * \
+            func(team_df['benchmarks.' + bench_type + '.pct'], min_per, max_per)
+    
+    return team_df
+
 def calculate_utility_advantage(team_df):
     # Utility Advantage
     # TODO: only apply to heroes that actually do these things
@@ -125,12 +145,23 @@ def calculate_farm_advantage(team_df):
                                    team_df['expected_xpm_ratio'])
     xpm_ratio_advantage_points = np.clip(xpm_ratio_advantage_points, 0, 1)
     
+    # Get available points into a format that pandas can use directly
+    gpm_available_points = []
+    gpm_ratio_available_points = []
+    xpm_available_points = []
+    xpm_ratio_available_points = []
+    for role in team_df['role']:
+        gpm_available_points.append(point_dict['gpm_vs_average_' + role])
+        gpm_ratio_available_points.append(point_dict['gpm_vs_expected_ratio_' + role])
+        xpm_available_points.append(point_dict['xpm_vs_average_' + role])
+        xpm_ratio_available_points.append(point_dict['xpm_vs_expected_ratio_' + role])
+    
     # Add to farm advantage
     team_df["farm_advantage"] += \
-        point_dict['gpm_vs_average'] * gpm_advantage_points + \
-        point_dict['gpm_vs_expected_ratio'] * gpm_ratio_advantage_points + \
-        point_dict['xpm_vs_average'] * xpm_advantage_points + \
-        point_dict['xpm_vs_expected_ratio'] * xpm_ratio_advantage_points
+        gpm_available_points * gpm_advantage_points + \
+        gpm_ratio_available_points * gpm_ratio_advantage_points + \
+        xpm_available_points * xpm_advantage_points + \
+        xpm_ratio_available_points * xpm_ratio_advantage_points
     
     # Last Hits
     team_df = calculate_benchmark_advantages(
@@ -150,21 +181,6 @@ def calculate_hero_damage_advantage(team_df):
     team_df = calculate_benchmark_advantages(
         team_df, 'hd', 'hd', 'hero_damage_per_min',
         min_hd_percentiles, max_hd_percentiles)
-    
-    return team_df
-
-def calculate_benchmark_advantages(
-        team_df, adv_type, stat_type,
-        bench_type, min_percentiles, max_percentiles):
-    # iterate for absolute percentile and for percentile relative to team mean
-    minor_cats = ['', '_mean']
-    func_list = [benchmark_advantage_points, benchmark_pp_advantage_points]
-    
-    for func, minor_cat, min_per, max_per in zip(
-        func_list, minor_cats, min_percentiles, max_percentiles):
-        team_df[adv_type + '_advantage'] += \
-            point_dict[stat_type + '_percentile' + minor_cat] * \
-            func(team_df['benchmarks.' + bench_type + '.pct'], min_per, max_per)
     
     return team_df
     
@@ -216,10 +232,20 @@ def calculate_combat_advantage(team_df):
                                  team_median_kills_assists)
     team_kp_advantage_points = np.clip(team_kp_advantage_points, 0, 1)
     
-    team_df["combat_advantage"] += \
-        point_dict['kda_hero_lane_average'] * kda_advantage_points + \
-        point_dict['kda_ratio_vs_expected'] * kda_ratio_advantage_points + \
-        point_dict['kill_assist_participation'] * team_kp_advantage_points        
+    # Get available points into a format that pandas can use directly
+    kda_advantage_available_points = []
+    kda_ratio_available_points = []
+    team_kp_available_points = []
+    for role in team_df['role']:
+        kda_advantage_available_points.append(point_dict['kda_hero_lane_average_' + role])
+        kda_ratio_available_points.append(point_dict['kda_ratio_vs_expected_' + role])
+        team_kp_available_points.append(point_dict['kill_assist_participation_' + role])
+    
+    # Put combat advantage into the dataframe
+    team_df['combat_advantage'] = \
+        kda_advantage_available_points * kda_advantage_points + \
+        kda_ratio_available_points * kda_ratio_advantage_points + \
+        team_kp_available_points * team_kp_advantage_points        
     
     return team_df
 
