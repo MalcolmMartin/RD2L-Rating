@@ -96,11 +96,11 @@ def process_player_match_df(opendota_player_match_df):
     # Pull only the columns for determining non-laning game performance
     processed_match_data = \
         opendota_player_match_df[
-            ["account_id", "personaname", "hero_id", "hero_name", "rank_tier",
-             "isRadiant", "lane", "win", "hero_damage", "tower_damage",
-             "hero_healing", "stuns", "kills", "deaths", "assists",
-             "last_hits", "lh_t", "denies", "benchmarks.gold_per_min.raw",
-             "benchmarks.xp_per_min.raw",
+            ["leagueid", "account_id", "personaname", "hero_id", "hero_name",
+             "rank_tier", "isRadiant", "lane", "win", "hero_damage",
+             "tower_damage", "hero_healing", "stuns", "kills", "deaths",
+             "assists", "last_hits", "lh_t", "denies",
+             "benchmarks.gold_per_min.raw", "benchmarks.xp_per_min.raw",
              "benchmarks.last_hits_per_min.pct",
              "benchmarks.hero_damage_per_min.pct",
              "benchmarks.hero_healing_per_min.pct",
@@ -110,7 +110,7 @@ def process_player_match_df(opendota_player_match_df):
     # Combine game data and laning data
     processed_match_data = processed_match_data.combine_first(laning_data)
     for advantage in ['combat', 'hd', 'farm', 'td', 'utility', 'total']:
-        processed_match_data[advantage + '_advantage'] = 0
+        processed_match_data[advantage + '_advantage'] = float(0)
     
     # Get hero lane dotabuff data
     processed_match_data = add_dotabuff_data(processed_match_data)
