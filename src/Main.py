@@ -18,38 +18,44 @@ sys.stdout.reconfigure(encoding='utf-8')
 pd.set_option("display.max_rows", None, "display.max_columns", None)
 
 def request_opendota_player_match_df(match_id):
-    # Grab match data
-    opendota_request = \
-        requests.get("https://api.opendota.com/api/matches/" + match_id)
+    # Read match data from file or request from opendota otherwise
+    # TODO: Debug why reading from file causes an error
+    if os.path.isfile('Opendota_Requests\\' + match_id + '.csv'):
+        opendota_match_df = \
+            pd.read_csv('Opendota_Requests\\' + match_id + '.csv')
+        # Use json.loads on these series to parse as objects instead of strings
+        for category in ['gold', 'xp', 'lh', 'dn']:
+            opendota_match_df[category + "_t"] = \
+                [json.loads(x) for x in opendota_match_df[category + "_t"]]
+    else:
+        # Request match data
+        opendota_request = \
+            requests.get("https://api.opendota.com/api/matches/" + match_id)
+        
+        # Translate the JSON response to a pandas dataframe
+        opendota_match_json_data = json.loads(opendota_request.text)
+        
+        # Use the players section as the data and the meta data as league id
+        # Can add more meta data as required
+        opendota_match_df = pd.json_normalize(
+            opendota_match_json_data, 'players', ['leagueid'])
+        
+        # Save to file
+        opendota_match_df.to_csv('Opendota_Requests\\' + match_id + '.csv',
+                       encoding='utf-8', index=False)
     
-    # Translates the JSON response to a pandas dataframe
-    opendota_match_json_data = json.loads(opendota_request.text)
-    
-    # Add filter to league_id here and handle not repeating this call somehow (empty processed file?)
-    test_df = pd.json_normalize(opendota_match_json_data)
-    print(test_df)
-    
-    # Only grabs and flattens the player data
-    opendota_player_match_df = \
-        pd.json_normalize(opendota_match_json_data, record_path=["players"])
-    
-    # TODO: Make custom order of columns
-    # Save match data to csv so match processing is only done once
-    opendota_player_match_df.to_csv(
-        'Opendota_Requests\\' + match_id + '.csv',
-        encoding='utf-8', index=False)
-    
-    return opendota_player_match_df
+    return opendota_match_df
 
 def get_processed_player_match_df(match_id):
-    # Read processed match data from csv if available, request from opendota otherwise and process
+    # Read processed match data from csv if available,
+    # request from opendota otherwise and process
     if os.path.isfile('Processed\\' + match_id + '_processed.csv'):
         opendota_processed_player_match_df = \
             pd.read_csv('Processed\\' + match_id + '_processed.csv')
         # Use json.loads on these series to parse as objects instead of strings
         for category in ['gold', 'xp', 'lh', 'dn']:
             opendota_processed_player_match_df[category + "_t"] = \
-            [json.loads(x) for x in opendota_processed_player_match_df[category + "_t"]]
+                [json.loads(x) for x in opendota_processed_player_match_df[category + "_t"]]
     else:
         opendota_player_match_df = request_opendota_player_match_df(match_id)
         opendota_processed_player_match_df = process_match_id(match_id, opendota_player_match_df)
@@ -73,12 +79,12 @@ def get_league_match_ids(player_id):
 
 def get_player_match_stats(player_id):
     # Get all necessary league games, convert to strings
-    match_ids = get_league_match_ids(player_id)
-    match_ids = [str(x) for x in match_ids]
+    #match_ids = get_league_match_ids(player_id)
+    #match_ids = [str(x) for x in match_ids]
     
     # Get processed match data for all match_ids
     player_match_data_list = []
-    for match_id in match_ids:
+    for match_id in ['6132703556', '6122028156']:#match_ids:
         player_match_data_list.append(get_processed_player_match_df(match_id))
     
     # Concatenate into a single dataframe
@@ -93,18 +99,19 @@ def main():
     # RD2L test game
     #process_match_id("6084550449")
     
-    x = get_processed_player_match_df("6146125511")
-    print(x['hero_name'])
-    
-    for advantage in ['lane', 'combat', 'hd', 'farm', 'td', 'utility', 'total']:
-        print(x[advantage + '_advantage'])
-    
-    
-    #processed_player_df = get_player_match_stats("96324191")
-    
-    #print(processed_player_df['hero_name'])
+    #x = get_processed_player_match_df("6146125511")
+    #print(x['hero_name'])
     
     #for advantage in ['lane', 'combat', 'hd', 'farm', 'td', 'utility', 'total']:
-    #    print(processed_player_df[advantage + '_advantage'])
+    #    print(x[advantage + '_advantage'])
+    
+    processed_player_df = get_player_match_stats("96324191")
+    
+    print(processed_player_df['leagueid'])
+    
+    print(processed_player_df['hero_name'])
+    
+    for advantage in ['lane', 'combat', 'hd', 'farm', 'td', 'utility', 'total']:
+        print(processed_player_df[advantage + '_advantage'])
 
 main()
