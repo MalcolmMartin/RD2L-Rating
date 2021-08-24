@@ -6,6 +6,7 @@ import sys
 import os
 import requests
 import json
+import fileinput
 import pandas as pd
 from Match_Processing import process_match_id
 
@@ -96,22 +97,19 @@ def get_player_match_stats(player_id):
     return player_match_data_df
 
 def main():
+    # TODO: Add options for league filtering, columns to print, etc.
+    # Accept instructions in "type id" format
+    for line in fileinput.input():
+        instructions = line.split()
+        if instructions[0] == "player":
+            result_df = get_player_match_stats(instructions[1])
+        elif instructions[0] == "match":
+            result_df = get_processed_player_match_df(instructions[1])
+        print (result_df)
+    
     # RD2L test game
-    #process_match_id("6084550449")
-    
-    #x = get_processed_player_match_df("6146125511")
-    #print(x['hero_name'])
-    
-    #for advantage in ['lane', 'combat', 'hd', 'farm', 'td', 'utility', 'total']:
-    #    print(x[advantage + '_advantage'])
-    
-    processed_player_df = get_player_match_stats("96324191")
-    
-    print(processed_player_df['leagueid'])
-    
-    print(processed_player_df['hero_name'])
-    
-    for advantage in ['lane', 'combat', 'hd', 'farm', 'td', 'utility', 'total']:
-        print(processed_player_df[advantage + '_advantage'])
+    #get_processed_player_match_df("6084550449")
+    # Me
+    #get_player_match_stats("96324191")
 
 main()
