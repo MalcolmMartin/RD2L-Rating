@@ -6,8 +6,6 @@ import json
 from bs4 import BeautifulSoup
 import math
 
-
-
 def makestats(lane):
     r = requests.get('https://www.dotabuff.com/heroes/lanes?lane='+lane, headers={'user-agent': 'Mozilla/5.0'})
     soup = BeautifulSoup(r.content, 'lxml')
@@ -26,7 +24,7 @@ def makestats(lane):
     #stats_dataframe.to_csv(lane+'Stats.csv', index=False, encoding='utf-8')
 
 
-    hero_ids = pandas.read_csv("src/Hero_Ids.csv")
+    hero_ids = pandas.read_csv("Hero_Ids.csv")
 
     #print (hero_ids, stats_dataframe)
     #read all the rows in hero_ids and then see if stats dataframe has the hero and if it doesnt then add a placeholder 
@@ -38,42 +36,35 @@ def makestats(lane):
             # row_df = pandas.DataFrame([a_row])
             #stats_dataframe = pandas.concat([row_df, stats_dataframe], ignore_index=True)
             stats_dataframe = stats_dataframe.append({'Hero' : row['hero_name']} , ignore_index=True)
-        
-
 
     return(stats_dataframe)
 
-statsbylane  = pandas.DataFrame()
+def get_dotabuff_hero_lane_data():
+    #adding an extra column for lanes - ordering lanes to match up with positions 
+    lanes = ['safe', 'mid', 'off', 'off', 'safe', 'jungle', 'roaming']
+    positions = [1, 2, 3, 4, 5, 6, 7]
 
+    statsbylane  = pandas.DataFrame()
+    for lane, position in zip(lanes, positions):
+        test = makestats(lane)
+        df = pandas.DataFrame(test)
+        df['Roles'] = position
+        statsbylane = pandas.concat([statsbylane, test])
 
-#adding an extra collumn for lanes - ordering lanes to match up with positions 
-lanes = ['safe', 'mid', 'off', 'off', 'safe', 'jungle', 'roaming']
-positions = [1, 2, 3, 4, 5, 6, 7]
+    #convert columns to non-percentage FLOATy bOIS
+    statsbylane['Presence'] = statsbylane['Presence'].str.rstrip('%').astype('float') / 100.0
+    statsbylane['Win Rate'] = statsbylane['Win Rate'].str.rstrip('%').astype('float') / 100.0
+    statsbylane['KDA Ratio'] = statsbylane['KDA Ratio'].astype('float')
+    statsbylane['GPM'] = statsbylane['GPM'].astype('float')
+    statsbylane['XPM'] = statsbylane['XPM'].astype('float')
 
-for lane, position in zip(lanes, positions):
-    test = makestats(lane)
-    df = pandas.DataFrame(test)
-    df['Roles'] = position
+    for index, row in statsbylane.iterrows():
+        if math.isnan(row['Presence']):
+            statsbylane.at[index, 'Presence'] = 0
+            statsbylane.at[index, 'Win Rate'] = statsbylane[statsbylane.Hero == row['Hero']]['Win Rate'].mean()
+            statsbylane.at[index, 'KDA Ratio'] = statsbylane[statsbylane.Hero == row['Hero']]['KDA Ratio'].mean()
+            statsbylane.at[index, 'GPM'] = statsbylane[statsbylane.Hero == row['Hero']]['GPM'].mean()
+            statsbylane.at[index, 'XPM'] = statsbylane[statsbylane.Hero == row['Hero']]['XPM'].mean()
 
-    statsbylane = pandas.concat([statsbylane, test])
-    #print (df)
-
-#convert columns to non-percentage FLOATy bOIS
-statsbylane['Presence'] = statsbylane['Presence'].str.rstrip('%').astype('float') / 100.0
-statsbylane['Win Rate'] = statsbylane['Win Rate'].str.rstrip('%').astype('float') / 100.0
-statsbylane['KDA Ratio'] = statsbylane['KDA Ratio'].astype('float')
-statsbylane['GPM'] = statsbylane['GPM'].astype('float')
-statsbylane['XPM'] = statsbylane['XPM'].astype('float')
-
-for index, row in statsbylane.iterrows():
-    if math.isnan(row['Presence']):
-        statsbylane.at[index, 'Presence'] = 0 
-        #print(statsbylane.groupby('Hero')['Win Rate'].mean())
-        statsbylane.at[index, 'Win Rate'] = statsbylane[statsbylane.Hero == row['Hero']]['Win Rate'].mean()
-        statsbylane.at[index, 'KDA Ratio'] = statsbylane[statsbylane.Hero == row['Hero']]['KDA Ratio'].mean()
-        statsbylane.at[index, 'GPM'] = statsbylane[statsbylane.Hero == row['Hero']]['GPM'].mean()
-        statsbylane.at[index, 'XPM'] = statsbylane[statsbylane.Hero == row['Hero']]['XPM'].mean()
-
-print(statsbylane)
-statsbylane.to_csv('statsbylane.csv', index=False, encoding='utf-8')
+    statsbylane.to_csv('statsbylane.csv', index=False, encoding='utf-8')
 

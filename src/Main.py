@@ -9,6 +9,7 @@ import json
 import fileinput
 import pandas as pd
 from Match_Processing import process_match_id
+from OriginalLoop import get_dotabuff_hero_lane_data
 
 # TODO: Scale how good their hero is in the game or get a draft advantage number
 
@@ -80,12 +81,12 @@ def get_league_match_ids(player_id):
 
 def get_player_match_stats(player_id):
     # Get all necessary league games, convert to strings
-    #match_ids = get_league_match_ids(player_id)
-    #match_ids = [str(x) for x in match_ids]
+    match_ids = get_league_match_ids(player_id)
+    match_ids = [str(x) for x in match_ids]
     
     # Get processed match data for all match_ids
     player_match_data_list = []
-    for match_id in ['6132703556', '6122028156']:#match_ids:
+    for match_id in match_ids:
         player_match_data_list.append(get_processed_player_match_df(match_id))
     
     # Concatenate into a single dataframe
@@ -101,11 +102,14 @@ def main():
     # Accept instructions in "type id" format
     for line in fileinput.input():
         instructions = line.split()
-        if instructions[0] == "player":
+        if instructions[0] == "dotabuff":
+            get_dotabuff_hero_lane_data()
+        elif instructions[0] == "player":
             result_df = get_player_match_stats(instructions[1])
+            print(result_df)
         elif instructions[0] == "match":
             result_df = get_processed_player_match_df(instructions[1])
-        print (result_df)
+            print(result_df)
     
     # RD2L test game
     #get_processed_player_match_df("6084550449")
