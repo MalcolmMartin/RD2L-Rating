@@ -1,43 +1,27 @@
 '''
 StratzToGo Match Processing
 '''
-import numpy as np
+import pdb
 import pandas as pd
 from Laning import add_roles, calculate_laning_advantage
 from Game import calculate_game_advantages
 
 def add_dotabuff_data(match_data_df):
-    # TODO: move to ala's ETL section and only use hore_role (1-5, 6-jungle, 7-roaming)
+    # Read dotabuff data into a df and make a new column that is hero_role
+    # (1-5, 6-jungle, 7-roaming)
     hero_lane_stats_df = pd.read_csv('statsbylane.csv')
-    # Hero lane stats
-    conditions = [
-        (hero_lane_stats_df['Roles'] == 'off'),
-        (hero_lane_stats_df['Roles'] == 'mid'),
-        (hero_lane_stats_df['Roles'] == 'safe'),
-        (hero_lane_stats_df['Roles'] == 'jungle'),
-        (hero_lane_stats_df['Roles'] == 'roaming')]
-    values = ['3', '2', '1', '4', '4']
-    hero_lane_stats_df['lane'] = np.select(conditions, values)
-    hero_lane_stats_df['hero_lane'] = hero_lane_stats_df['Hero'] + '_' + hero_lane_stats_df['lane']
-    hero_lane_stats_dict = hero_lane_stats_df.set_index('hero_lane').T.to_dict('list')
+    hero_lane_stats_df['Roles'] = hero_lane_stats_df['Roles'].astype(str)
+    hero_lane_stats_df['hero_role'] = hero_lane_stats_df['Hero'] + '_' + hero_lane_stats_df['Roles']
+    hero_lane_stats_dict = hero_lane_stats_df.set_index('hero_role').T.to_dict('list')
     # Dictionary Indices: 0 - Hero, 1 - Presence, 2 - Win Rate, 3 - KDA Ratio,
-    # 4 - GPM, 5 - XPM, 6 - Roles, 7 - lane, 8 - hero_lane
+    # 4 - GPM, 5 - XPM, 6 - Roles
     
-    # Get expected hero lane kda from dotabuff data
-    # Swap lanes for dire so it matches safe/off instead of top/bot
+    # Get expected hero role stats from dotabuff data
+    match_data_df['dotabuff_lookup_value'] = match_data_df['hero_name'] + '_' + match_data_df['role']
     for index, row in match_data_df.iterrows():
-        if (row['lane'] == '1') & (row['isRadiant'] == False):
-            match_data_df.at[index,'lane'] = 3
-        elif (row['lane'] == '3') & (row['isRadiant'] == False):
-            match_data_df.at[index,'lane'] = 1
-    
-    # Put in hero_lane data from dotabuff
-    match_data_df['lane'] = match_data_df['lane'].map(str)
-    match_data_df['kda_lookup_value'] = match_data_df['hero_name'] + '_' + match_data_df['lane']
-    for index, row in match_data_df.iterrows():
-        match_data_df.at[index,'hero_lane_kda'] = hero_lane_stats_dict[row['kda_lookup_value']][3]
-        match_data_df.at[index,'hero_lane_gpm'] = hero_lane_stats_dict[row['kda_lookup_value']][4]
-        match_data_df.at[index,'hero_lane_xpm'] = hero_lane_stats_dict[row['kda_lookup_value']][5]
+        match_data_df.at[index,'hero_lane_kda'] = hero_lane_stats_dict[row['dotabuff_lookup_value']][3]
+        match_data_df.at[index,'hero_lane_gpm'] = hero_lane_stats_dict[row['dotabuff_lookup_value']][4]
+        match_data_df.at[index,'hero_lane_xpm'] = hero_lane_stats_dict[row['dotabuff_lookup_value']][5]
     
     return match_data_df
 
