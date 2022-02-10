@@ -2,12 +2,9 @@
 StratzToGo Point Allocation
 '''
 
-# TODO: Core/Support point differential, using core for all temporarily
 # Point total is out of 100
 # Points assigned (1/2/3/4/5):
-
 point_dict = {}
-
 
 # TODO: Maybe use role weighting
 # Laning Advantage (25/25/25/25/25)
@@ -48,7 +45,7 @@ point_dict['kda_hero_lane_average_5'] = 12
 point_dict['kda_ratio_vs_expected_5'] = 5
 point_dict['kill_assist_participation_5'] = 8
 
-# Hero Damage Advantage (20/20/20/15/15)
+# Hero Damage Advantage (20/20/15/15/15)
 # Hero damage per Minute percentile (15/15/10/10/10)
 # Hero damage per Minute percentile ratio (5/5/5/5/5)
 point_dict['hd_percentile_1'] = 15

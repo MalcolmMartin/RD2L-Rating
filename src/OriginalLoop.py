@@ -23,7 +23,6 @@ def makestats(lane):
     stats_dataframe = pandas.concat((pandas.json_normalize(d) for d in stats), axis=0)
     #stats_dataframe.to_csv(lane+'Stats.csv', index=False, encoding='utf-8')
 
-
     hero_ids = pandas.read_csv("Hero_Ids.csv")
 
     #print (hero_ids, stats_dataframe)

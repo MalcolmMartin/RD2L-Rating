@@ -1,8 +1,11 @@
 '''
 StratzToGo Match Processing
 '''
-import pdb
+import json
+import math
+import os
 import pandas as pd
+import requests
 from Laning import add_roles, calculate_laning_advantage
 from Game import calculate_game_advantages
 
@@ -11,17 +14,23 @@ def add_dotabuff_data(match_data_df):
     # (1-5, 6-jungle, 7-roaming)
     hero_lane_stats_df = pd.read_csv('statsbylane.csv')
     hero_lane_stats_df['Roles'] = hero_lane_stats_df['Roles'].astype(str)
-    hero_lane_stats_df['hero_role'] = hero_lane_stats_df['Hero'] + '_' + hero_lane_stats_df['Roles']
-    hero_lane_stats_dict = hero_lane_stats_df.set_index('hero_role').T.to_dict('list')
+    hero_lane_stats_df['hero_role'] = \
+        hero_lane_stats_df['Hero'] + '_' + hero_lane_stats_df['Roles']
+    hero_lane_stats_dict = \
+        hero_lane_stats_df.set_index('hero_role').T.to_dict('list')
     # Dictionary Indices: 0 - Hero, 1 - Presence, 2 - Win Rate, 3 - KDA Ratio,
     # 4 - GPM, 5 - XPM, 6 - Roles
     
     # Get expected hero role stats from dotabuff data
-    match_data_df['dotabuff_lookup_value'] = match_data_df['hero_name'] + '_' + match_data_df['role']
+    match_data_df['dotabuff_lookup_value'] = match_data_df['hero_name'] + \
+        '_' + match_data_df['role']
     for index, row in match_data_df.iterrows():
-        match_data_df.at[index,'hero_lane_kda'] = hero_lane_stats_dict[row['dotabuff_lookup_value']][3]
-        match_data_df.at[index,'hero_lane_gpm'] = hero_lane_stats_dict[row['dotabuff_lookup_value']][4]
-        match_data_df.at[index,'hero_lane_xpm'] = hero_lane_stats_dict[row['dotabuff_lookup_value']][5]
+        match_data_df.at[index,'hero_lane_kda'] = \
+            hero_lane_stats_dict[row['dotabuff_lookup_value']][3]
+        match_data_df.at[index,'hero_lane_gpm'] = \
+            hero_lane_stats_dict[row['dotabuff_lookup_value']][4]
+        match_data_df.at[index,'hero_lane_xpm'] = \
+            hero_lane_stats_dict[row['dotabuff_lookup_value']][5]
     
     return match_data_df
 
@@ -66,9 +75,11 @@ def process_player_match_df(opendota_player_match_df):
                                          (laning_df['isRadiant']==True)]
     lanes_dict['dire_top'] = laning_df[(laning_df['lane']==3) &
                                       (laning_df['isRadiant']==False)]
-    lanes_dict['radiant_jungle'] = laning_df[((laning_df['lane']==4) | (laning_df['lane']==5)) &
+    lanes_dict['radiant_jungle'] = laning_df[((laning_df['lane']==4) |
+                                              (laning_df['lane']==5)) &
                                              (laning_df['isRadiant']==True)]
-    lanes_dict['dire_jungle'] = laning_df[((laning_df['lane']==4) | (laning_df['lane']==5)) &
+    lanes_dict['dire_jungle'] = laning_df[((laning_df['lane']==4) |
+                                           (laning_df['lane']==5)) &
                                              (laning_df['isRadiant']==False)]
     
     # Add roles
@@ -80,10 +91,10 @@ def process_player_match_df(opendota_player_match_df):
     # Pull only the columns for determining non-laning game performance
     processed_match_data = \
         opendota_player_match_df[
-            ["leagueid", "account_id", "personaname", "hero_id", "hero_name",
-             "rank_tier", "isRadiant", "lane", "win", "hero_damage",
-             "tower_damage", "hero_healing", "stuns", "kills", "deaths",
-             "assists", "last_hits", "lh_t", "denies",
+            ["leagueid", "match_id", "account_id", "personaname", "hero_id",
+             "hero_name", "rank_tier", "isRadiant", "lane", "win",
+             "hero_damage", "tower_damage", "hero_healing", "stuns", "kills",
+             "deaths", "assists", "last_hits", "lh_t", "denies",
              "benchmarks.gold_per_min.raw", "benchmarks.xp_per_min.raw",
              "benchmarks.last_hits_per_min.pct",
              "benchmarks.hero_damage_per_min.pct",
@@ -126,3 +137,63 @@ def process_match_id(match_id, opendota_player_match_df):
                               '_processed.csv', encoding='utf-8', index=False)
     
     return processed_match_df
+
+def request_opendota_player_match_df(match_id):
+    # Read match data from file or request from opendota otherwise
+    # TODO: Debug why reading from file causes an error
+    if os.path.isfile('Opendota_Requests\\' + match_id + '.csv'):
+        opendota_match_df = \
+            pd.read_csv('Opendota_Requests\\' + match_id + '.csv')
+        if math.isnan(opendota_match_df['version'].iloc[0]):
+            return pd.DataFrame()
+        # Use json.loads on these series to parse as objects instead of strings
+        for category in ['gold', 'xp', 'lh', 'dn']:
+            opendota_match_df[category + "_t"] = \
+                [json.loads(x) for x in opendota_match_df[category + "_t"]]
+    else:
+        # Request match dataz
+        opendota_request = \
+            requests.get("https://api.opendota.com/api/matches/" + match_id)
+        
+        # Translate the JSON response to a pandas dataframe
+        opendota_match_json_data = json.loads(opendota_request.text)
+        
+        # Use the players section as the data and the meta data as league id
+        # Can add more meta data as required
+        opendota_match_df = pd.json_normalize(
+            opendota_match_json_data, 'players', meta=['leagueid', 'version'])
+        
+        # Save to file
+        opendota_match_df.to_csv('Opendota_Requests\\' + match_id + '.csv',
+                       encoding='utf-8', index=False)
+    
+        if opendota_match_df['version'].iloc[0] == None:
+            return pd.DataFrame()
+    
+    return opendota_match_df
+
+def get_processed_match_df(match_id):
+    # Read processed match data from csv if available,
+    # request from opendota otherwise and process
+    if os.path.isfile('Processed\\' + match_id + '_processed.csv'):
+        opendota_processed_player_match_df = \
+            pd.read_csv('Processed\\' + match_id + '_processed.csv')
+        # Return empty dataframe if replay is not parsed
+        if opendota_processed_player_match_df.empty:
+            print ('Replay not parsed')
+            return pd.DataFrame()
+        # Use json.loads on these series to parse as objects instead of strings
+        for category in ['gold', 'xp', 'lh', 'dn']:
+            opendota_processed_player_match_df[category + "_t"] = \
+                [json.loads(x) for x in
+                 opendota_processed_player_match_df[category + "_t"]]
+    else:
+        opendota_player_match_df = request_opendota_player_match_df(match_id)
+        # Return empty dataframe if replay is not parsed
+        if opendota_player_match_df.empty:
+            print ('Replay not parsed')
+            return pd.DataFrame()
+        opendota_processed_player_match_df = \
+            process_match_id(match_id, opendota_player_match_df)
+    
+    return opendota_processed_player_match_df
