@@ -1,8 +1,14 @@
-src/Opendota_Requests
-src/Player Summary
-src/Processed
+.DS_Store
+.project
+.pydevproject
+src/__pycache__
+src/Collections
+src/Collections Lookups
+src/Collections Rankings
 src/Opendota_Requests
 src/Player Summary
 src/Processed
 src/*.log
-src/*.csv
+src/statsbylane.csv
+src/.env
+src/.DS_Store
