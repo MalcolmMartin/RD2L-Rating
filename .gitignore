@@ -10,5 +10,4 @@ src/Player Summary
 src/Processed
 src/*.log
 src/statsbylane.csv
-src/.env
 src/.DS_Store
