@@ -151,7 +151,7 @@ def request_opendota_player_match_df(match_id):
             opendota_match_df[category + "_t"] = \
                 [json.loads(x) for x in opendota_match_df[category + "_t"]]
     else:
-        # Request match dataz
+        # Request match data
         opendota_request = \
             requests.get("https://api.opendota.com/api/matches/" + match_id)
         
