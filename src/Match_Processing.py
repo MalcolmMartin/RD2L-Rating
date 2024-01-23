@@ -41,12 +41,11 @@ def add_lane_timings(laning_df, category):
     
     return laning_df
 
-def process_player_match_df(opendota_player_match_df):
+def process_player_match_df(match_id, opendota_player_match_df):
     # Create a laning dataframe from match df
     laning_df = opendota_player_match_df[[
         "personaname", "hero_id", "hero_name", "rank_tier", "isRadiant",
-        "lane", "gold_t", "xp_t", "lh_t", "dn_t", "benchmarks.lhten.raw",
-        "benchmarks.lhten.pct", "lane_efficiency_pct"]]
+        "lane", "gold_t", "xp_t", "lh_t", "dn_t", "lane_efficiency_pct"]]
     laning_df['role'] = ''
     laning_df['lane_advantage'] = 0
     
@@ -99,8 +98,7 @@ def process_player_match_df(opendota_player_match_df):
              "benchmarks.last_hits_per_min.pct",
              "benchmarks.hero_damage_per_min.pct",
              "benchmarks.hero_healing_per_min.pct",
-             "benchmarks.tower_damage.pct",
-             "benchmarks.stuns_per_min.pct"]]
+             "benchmarks.tower_damage.pct"]]
     
     # Combine game data and laning data
     processed_match_data = processed_match_data.combine_first(laning_data)
@@ -130,7 +128,7 @@ def process_match_id(match_id, opendota_player_match_df):
             hero_id_df.set_index('hero_id'), on='hero_id')
     
     # Run the evaluation algorithm
-    processed_match_df = process_player_match_df(opendota_player_match_df)
+    processed_match_df = process_player_match_df(match_id, opendota_player_match_df)
     
     # Save processed match data
     processed_match_df.to_csv('Processed\\' + match_id +
@@ -162,6 +160,9 @@ def request_opendota_player_match_df(match_id):
         # Can add more meta data as required
         opendota_match_df = pd.json_normalize(
             opendota_match_json_data, 'players', meta=['leagueid', 'version'])
+        
+        # Add column for match_id
+        opendota_match_df['match_id'] = match_id
         
         # Save to file
         opendota_match_df.to_csv('Opendota_Requests\\' + match_id + '.csv',

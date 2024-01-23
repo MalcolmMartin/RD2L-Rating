@@ -48,10 +48,10 @@ def calculate_utility_advantage(team_df):
     # TODO: only apply to heroes that actually do these things
     # 0 points awarded for 10th percentile, 20pp below
     min_hh_percentiles = [.1, -.2]
-    min_stun_percentiles = [.1, -.2]
+    #min_stun_percentiles = [.1, -.2]
     # Max points awarded for 90th percentile, 20pp above
     max_hh_percentiles = [.9, .2]
-    max_stun_percentiles = [.9, .2]
+    #max_stun_percentiles = [.9, .2]
     
     # Hero Healing
     team_df = calculate_benchmark_advantages(
@@ -59,9 +59,9 @@ def calculate_utility_advantage(team_df):
         min_hh_percentiles, max_hh_percentiles)
     
     # Stuns
-    team_df = calculate_benchmark_advantages(
-        team_df, 'utility', 'stun', 'stuns_per_min',
-        min_stun_percentiles, max_stun_percentiles)
+    #team_df = calculate_benchmark_advantages(
+    #    team_df, 'utility', 'stun', 'stuns_per_min',
+    #    min_stun_percentiles, max_stun_percentiles)
     
     return team_df
 

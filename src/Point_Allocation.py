@@ -2,6 +2,9 @@
 StratzToGo Point Allocation
 '''
 
+# Stuns removed from opendota api, temporarily reallocating stun points
+# into damage/gpm/healing, weights in comments are intended, in code are temp
+
 # Point total is out of 100
 # Points assigned (1/2/3/4/5):
 point_dict = {}
@@ -52,11 +55,11 @@ point_dict['hd_percentile_1'] = 15
 point_dict['hd_percentile_mean_1'] = 5
 point_dict['hd_percentile_2'] = 15
 point_dict['hd_percentile_mean_2'] = 5
-point_dict['hd_percentile_3'] = 10
+point_dict['hd_percentile_3'] = 15
 point_dict['hd_percentile_mean_3'] = 5
-point_dict['hd_percentile_4'] = 10
+point_dict['hd_percentile_4'] = 15
 point_dict['hd_percentile_mean_4'] = 5
-point_dict['hd_percentile_5'] = 10
+point_dict['hd_percentile_5'] = 15
 point_dict['hd_percentile_mean_5'] = 5
 
 # Farm Advantage (20/20/15/15/15)
@@ -80,20 +83,20 @@ point_dict['xpm_vs_average_2'] = 4
 point_dict['xpm_vs_expected_ratio_2'] = 1
 point_dict['lh_percentile_3'] = 4
 point_dict['lh_percentile_mean_3'] = 1
-point_dict['gpm_vs_average_3'] = 4
-point_dict['gpm_vs_expected_ratio_3'] = 1
+point_dict['gpm_vs_average_3'] = 8
+point_dict['gpm_vs_expected_ratio_3'] = 2
 point_dict['xpm_vs_average_3'] = 4
 point_dict['xpm_vs_expected_ratio_3'] = 1
 point_dict['lh_percentile_4'] = 4
 point_dict['lh_percentile_mean_4'] = 1
-point_dict['gpm_vs_average_4'] = 4
-point_dict['gpm_vs_expected_ratio_4'] = 1
+point_dict['gpm_vs_average_4'] = 8
+point_dict['gpm_vs_expected_ratio_4'] = 2
 point_dict['xpm_vs_average_4'] = 4
 point_dict['xpm_vs_expected_ratio_4'] = 1
 point_dict['lh_percentile_5'] = 4
 point_dict['lh_percentile_mean_5'] = 1
-point_dict['gpm_vs_average_5'] = 4
-point_dict['gpm_vs_expected_ratio_5'] = 1
+point_dict['gpm_vs_average_5'] = 8
+point_dict['gpm_vs_expected_ratio_5'] = 2
 point_dict['xpm_vs_average_5'] = 4
 point_dict['xpm_vs_expected_ratio_5'] = 1
 
@@ -116,23 +119,23 @@ point_dict['td_percentile_mean_5'] = 1
 # Hero healing per Minute percentile mean (1/1/1/1/1)
 # Stuns per Minute percentile (2/2/8/8/8)
 # Stuns per Minute percentile mean (1/1/2/2/2)
-point_dict['hh_percentile_1'] = 1
-point_dict['hh_percentile_mean_1'] = 1
-point_dict['stun_percentile_1'] = 2
-point_dict['stun_percentile_mean_1'] = 1
-point_dict['hh_percentile_2'] = 1
-point_dict['hh_percentile_mean_2'] = 1
-point_dict['stun_percentile_2'] = 2
-point_dict['stun_percentile_mean_2'] = 1
-point_dict['hh_percentile_3'] = 4
-point_dict['hh_percentile_mean_3'] = 1
-point_dict['stun_percentile_3'] = 8
-point_dict['stun_percentile_mean_3'] = 2
-point_dict['hh_percentile_4'] = 4
-point_dict['hh_percentile_mean_4'] = 1
-point_dict['stun_percentile_4'] = 8
-point_dict['stun_percentile_mean_4'] = 2
-point_dict['hh_percentile_5'] = 4
-point_dict['hh_percentile_mean_5'] = 1
-point_dict['stun_percentile_5'] = 8
-point_dict['stun_percentile_mean_5'] = 2
+point_dict['hh_percentile_1'] = 3
+point_dict['hh_percentile_mean_1'] = 2
+#point_dict['stun_percentile_1'] = 2
+#point_dict['stun_percentile_mean_1'] = 1
+point_dict['hh_percentile_2'] = 3
+point_dict['hh_percentile_mean_2'] = 2
+#point_dict['stun_percentile_2'] = 2
+#point_dict['stun_percentile_mean_2'] = 1
+point_dict['hh_percentile_3'] = 3
+point_dict['hh_percentile_mean_3'] = 2
+#point_dict['stun_percentile_3'] = 8
+#point_dict['stun_percentile_mean_3'] = 2
+point_dict['hh_percentile_4'] = 3
+point_dict['hh_percentile_mean_4'] = 2
+#point_dict['stun_percentile_4'] = 8
+#point_dict['stun_percentile_mean_4'] = 2
+point_dict['hh_percentile_5'] = 3
+point_dict['hh_percentile_mean_5'] = 2
+#point_dict['stun_percentile_5'] = 8
+#point_dict['stun_percentile_mean_5'] = 2

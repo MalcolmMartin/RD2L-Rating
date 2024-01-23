@@ -116,7 +116,7 @@ def add_roles(lanes_dict):
     
     for lane, role in zip(lanes, roles):
         lanes_dict[lane].loc[
-            lanes_dict[lane]["benchmarks.lhten.raw"].idxmax(), "role"] = role
+            lanes_dict[lane]["lh_10"].idxmax(), "role"] = role
     
     # TODO: handle having a roamer configuration
     # Assign supports
@@ -127,7 +127,7 @@ def add_roles(lanes_dict):
     for lane in ['radiant_bot', 'dire_top']:
         if len(lanes_dict[lane].index) != 1:
             lanes_dict[lane].loc[
-                lanes_dict[lane]["benchmarks.lhten.raw"].idxmin(), "role"] = '5'
+                lanes_dict[lane]["lh_10"].idxmin(), "role"] = '5'
         if len(lanes_dict[lane].index) == 3:
             lanes_dict[lane].loc[
                 lanes_dict[lane]["role"]=="", "role"] = '4'
@@ -136,10 +136,10 @@ def add_roles(lanes_dict):
     for lane in ['radiant_top', 'dire_bot']:
         if len(lanes_dict[lane].index) == 2:
             lanes_dict[lane].loc[
-                lanes_dict[lane]["benchmarks.lhten.raw"].idxmin(), "role"] = '4'
+                lanes_dict[lane]["lh_10"].idxmin(), "role"] = '4'
         elif len(lanes_dict[lane].index) == 3:
             lanes_dict[lane].loc[
-                lanes_dict[lane]["benchmarks.lhten.raw"].idxmin(), "role"] = '5'
+                lanes_dict[lane]["lh_10"].idxmin(), "role"] = '5'
             #lanes_dict[lane].loc[
             #    lanes_dict[lane]["role"]=="", lanes_dict[lane]["role"]] = 4
             lanes_dict[lane].loc[
@@ -152,7 +152,7 @@ def add_roles(lanes_dict):
                  lanes_dict[team + '_top']['role'].unique()])
         if len(lanes_dict[team + '_mid'].index) == 3:
             lanes_dict[team + '_mid'].loc[
-                lanes_dict[team + '_mid']["benchmarks.lhten.raw"].idxmin(), \
+                lanes_dict[team + '_mid']["lh_10"].idxmin(), \
                 "role"] = '5'
             lanes_dict[team + '_mid'].loc[
                 lanes_dict[team + '_mid']["role"]=="",\
